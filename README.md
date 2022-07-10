@@ -10,7 +10,7 @@
         - [Token Creation for Client Authentication](https://argoproj.github.io/argo-workflows/access-token/#token-creation)
 
 Create an admin serviceaccount:
-```yaml=
+```yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -30,26 +30,26 @@ roleRef:
   name: admin # default k8s cluster admin role
   apiGroup: rbac.authorization.k8s.io
 ```
-```bash=
+```bash
 SECRET=$(kubectl get sa argoadmin -n argo -o=jsonpath='{.secrets[0].name}')
 ARGO_TOKEN="Bearer $(kubectl get secret $SECRET -n argo -o=jsonpath='{.data.token}' | base64 --decode)"
 echo $ARGO_TOKEN
 ```
 
 Remember to override `workflow-controller-configmap` with https://argoproj.github.io/argo-workflows/workflow-controller-configmap.yaml in order to configure Postgres (for job results) and S3 (for job logs). Then you can apply the manifests:
-```bash=
+```bash
 kubectl create namespace argo
 kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.3.8/install.yaml
 ```
 Web UI: https://localhost:2746
 
 Open port-forward to access the UI:
-```bash=
+```bash
 kubectl -n argo port-forward deployment/argo-server 2746:2746
 ```
 ### Default Workflow Configuration
 For the following workflow:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -64,7 +64,7 @@ spec:
   parallelism: 3
 ```
 In `workflow-controller-configmap`:
-```yaml=
+```yaml
 # This file describes the config settings available in the workflow controller configmap
 apiVersion: v1
 kind: ConfigMap
@@ -85,7 +85,7 @@ data:
 ```
 ### Other Configuration
 Security context:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -96,7 +96,7 @@ spec:
     runAsUser: 8737 #; any non-root user
 ```
 ## Argo CLI
-```bash=
+```bash
 argo submit -n argo hello-world.yaml    # submit a workflow spec to Kubernetes
 argo list -n argo                       # list current workflows
 argo get hello-world-xxx -n argo        # get info about a specific workflow
@@ -104,7 +104,7 @@ argo logs hello-world-xxx -n argo       # print the logs from a workflow
 argo delete hello-world-xxx -n argo     # delete workflow
 ```
 You can also run workflow specs directly using `kubectl`:
-```bash=
+```bash
 kubectl create -f hello-world.yaml -n argo
 kubectl get wf -n argo
 kubectl get wf hello-world-xxx -n argo
@@ -112,10 +112,10 @@ kubectl get po --selector=workflows.argoproj.io/workflow=hello-world-xxx --show-
 kubectl logs hello-world-xxx-yyy -c main -n argo
 kubectl delete wf hello-world-xxx -n argo
 ```
-==Note that we should use `kubectl create` instead of `kubectl apply`. Otherwise the workflow will run only once even if you modify its manifest later.==
+Note that we should use `kubectl create` instead of `kubectl apply`. Otherwise the workflow will run only once even if you modify its manifest later.
 ## Usage
 Example job:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -136,24 +136,24 @@ spec:
       args: ["hello world"]
 ```
 Submit a job with serviceaccount `argoadmin`:
-```bash=
+```bash
 argo submit --serviceaccount argoadmin -n argo --watch hello-world.yaml
 ```
 List workflows:
-```bash=
+```bash
 argo list -n argo --kubeconfig /path/to/kubeconfig --context k3d-k3s-default
 ```
 Get latest workflow details:
-```bash=
+```bash
 argo get -n argo @latest
 ```
 Get latest workflow logs:
-```bash=
+```bash
 argo logs -n argo @latest
 ```
 ## Workflow Example
 ### If-Else
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -193,9 +193,8 @@ spec:
       command: [sh, -c]
       args: ["echo \"it was tails\""]
 ```
-將上面的 yaml 轉成 json 可以視為 `[[flip-coin], [heads, tails]]`，因此會先執行 flip-coin。而 flip-coin 透過執行的 script 會有一個 result 作為 output，表示擲出硬幣的結果。
 ### DAG
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -253,8 +252,8 @@ spec:
       command: [echo, "{{inputs.parameters.message}}"]
 ```
 ### Artifacts and Parameters
-==Different types of inputs + passing artifacts and parameters==:
-```yaml=
+Different types of inputs + passing artifacts and parameters:
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -321,11 +320,11 @@ spec:
           cat /tmp/message
 ```
 Create workflow:
-```bash=
+```bash
 argo submit --serviceaccount argoadmin -n argo example.yaml -p 'workflow-param-1="abcd"'
 ```
 Argument from command line:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -357,11 +356,11 @@ spec:
       args: ["cowsay hello"]
 ```
 Pass argument:
-```bash=
+```bash
 argo submit examples/conditionals.yaml -n argo -p should-print=true
 ```
 Get result from last step:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -408,7 +407,7 @@ spec:
 ### Conditional Artifacts and Parameters
 - https://argoproj.github.io/argo-workflows/conditional-artifacts-parameters/
 Conditional artifacts:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -475,7 +474,7 @@ spec:
             path: /result.txt
 ```
 ### Retry
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -496,7 +495,7 @@ spec:
       # fail with a 66% probability
       args: ["import random; import sys; exit_code = random.choice([0, 1, 1]); sys.exit(exit_code)"]
 ```
-```yaml=
+```yaml
 
 
 # This example demonstrates the use of retries for a single container.
@@ -519,7 +518,7 @@ spec:
 ```
 ### Synchronization
 - https://argoproj.github.io/argo-workflows/synchronization/
-```yaml=
+```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -529,7 +528,7 @@ data:
   template: "2"  # Two instances of template can run at a given time in particular namespace
 ```
 Workflow level:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -549,7 +548,7 @@ spec:
       args: ["hello world"]
 ```
 Template-level synchronization limits parallel execution of the template across workflows, if templates have the same synchronization reference.
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -583,7 +582,7 @@ Two instances of templates will be executed at a given time: even multiple steps
 Remember to upload your ssh public key to Github in advance.
 
 Vault configuration:
-```bash=
+```bash
 vault kv put internal/test/config prikey=@my/path/to/cert
 
 vault policy write myconfig - <<EOF
@@ -599,7 +598,7 @@ vault write auth/kubernetes/role/argoadmin \
     policies=myconfig \
     ttl=24h
 ```
-```yaml=
+```yaml
 kind: Workflow
 metadata:
   generateName: input-artifact-git-
@@ -653,7 +652,7 @@ spec:
       - name: workdir
         mountPath: /mnt/vol
 ```
-```bash=
+```bash
 argo submit --serviceaccount argoadmin -n argo git.yaml
 
 # or use kubectl (remember to uncomment serviceaccount and namespace)
@@ -662,7 +661,7 @@ kubectl create -f git.yaml
 ```
 ### Loops
 Loop list:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -706,7 +705,7 @@ spec:
       args: [/etc/os-release]
 ```
 With item maps:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -741,7 +740,7 @@ spec:
       args: [/etc/os-release]
 ```
 Expanding into multiple parallel steps:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -783,7 +782,7 @@ spec:
 Parallelism limits the max total parallel pods that can execute at the same time in a workflow.
 
 Only the outer workflow `seq-step` is limited to parallelism=1:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -833,7 +832,7 @@ spec:
       args: ["echo {{inputs.parameters.seq-id}}; sleep 30"]
 ```
 Example with vertical and horizontal scalability:
-```yaml=
+```yaml
 # Example with vertical and horizontal scalability                                                                                                                                                                                      
 #                                                                                                                                                                                                                                                            
 # Imagine we have 'M' workers which work in parallel,                                                                                                                                                                                                        
@@ -902,7 +901,7 @@ spec:
 - https://argoproj.github.io/argo-workflows/webhooks/
 - https://argoproj.github.io/argo-workflows/events/?fbclid=IwAR2ioKfeRYdVXSpKMRVzH4dr9ZwHh1m45PO16r1xEuMCzbNXpaBJ_KamPx4
 Needed role:
-```yaml=
+```yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -942,7 +941,7 @@ subjects:
     name: argoadmin
     namespace: argo
 ```
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowEventBinding
 metadata:
@@ -980,18 +979,18 @@ spec:
         command: [cowsay]
         args: ["{{inputs.parameters.message}}"]
 ```
-```bash=
+```bash
 kubectl apply -f event-template.yml
 ```
 Trigger event:
-```bash=
+```bash
 curl $ARGO_SERVER/api/v1/events/argo/my-discriminator \
     -H "Authorization: $ARGO_TOKEN" \
     -H "X-Argo-E2E: true" \
     -d '{"message": "hello events"}'
 ```
 For example:
-```bash=
+```bash
 curl https://localhost:2746/api/v1/events/argo/my-discriminator \
     -H "Authorization: $ARGO_TOKEN" \
     -H "X-Argo-E2E: true" \
@@ -999,9 +998,9 @@ curl https://localhost:2746/api/v1/events/argo/my-discriminator \
     --insecure
 ```
 ### Cronjob
-- Usecase: ==define cronjob workflow in a manifest repository, and sync with Kubernetes by ArgoCD==
+- Use case: define cronjob workflow in a manifest repository, and sync with Kubernetes by ArgoCD.
 
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: CronWorkflow
 metadata:
@@ -1025,8 +1024,8 @@ spec:
           command: [cowsay]
           args: ["🕓 hello world. Scheduled on: {{workflow.scheduledTime}}"]
 ```
-### ==TTL==
-```yaml=
+### TTL
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -1045,7 +1044,7 @@ spec:
       args: ["hello world"]
 ```
 ### Status
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -1086,7 +1085,7 @@ spec:
 ```
 ### Workflow Template
 When working with global parameters, you can instantiate your global variables in your `Workflow` and then directly reference them in your `WorkflowTemplate`. Below is a working example:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -1120,7 +1119,7 @@ spec:
               template: hello-world
 ```
 Local parameters:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -1156,7 +1155,7 @@ spec:
                 value: "hello"
 ```
 ### Create Workflow from WorkflowTemplate Spec
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: WorkflowTemplate
 metadata:
@@ -1178,7 +1177,7 @@ spec:
         args: ["{{inputs.parameters.message}}"]
 ```
 Here is an example of a referring WorkflowTemplate as Workflow and using WorkflowTemplates's entrypoint and Workflow Arguments:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -1188,7 +1187,7 @@ spec:
     name: workflow-template-submittable
 ```
 Here is an example for referring WorkflowTemplate as Workflow with passing entrypoint and Workflow Arguments to WorkflowTemplate:
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
