@@ -407,6 +407,7 @@ spec:
 ```
 ### Conditional Artifacts and Parameters
 - https://argoproj.github.io/argo-workflows/conditional-artifacts-parameters/
+
 Conditional artifacts:
 ```yaml
 apiVersion: argoproj.io/v1alpha1
@@ -901,6 +902,7 @@ spec:
 ### Event and Webhook
 - https://argoproj.github.io/argo-workflows/webhooks/
 - https://argoproj.github.io/argo-workflows/events/?fbclid=IwAR2ioKfeRYdVXSpKMRVzH4dr9ZwHh1m45PO16r1xEuMCzbNXpaBJ_KamPx4
+
 Needed role:
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
