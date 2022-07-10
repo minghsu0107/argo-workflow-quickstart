@@ -1,4 +1,5 @@
 # argo-workflow-quickstart
+Scripts are referenced from https://github.com/argoproj/argo-workflows/tree/master/examples
 ## Installation
 - https://github.com/argoproj/argo-workflows/releases/tag/v3.3.8
 - https://argoproj.github.io/argo-workflows/installation/
