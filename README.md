@@ -1204,3 +1204,39 @@ spec:
   workflowTemplateRef:
     name: workflow-template-submittable
 ```
+### Slack Notification
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: exit-handler-slack-
+spec:
+  entrypoint: say-hello
+  onExit: exit-handler
+  templates:
+  - name: say-hello
+    container:
+      image: alpine:latest
+      command: [sh, -c]
+      args: ["echo hello"]
+
+  - name: exit-handler
+    container:
+      image: curlimages/curl
+      command: [sh, -c]
+      args: [
+        "curl -X POST --data-urlencode 'payload={
+          \"text\": \"{{workflow.name}} finished\",
+          \"blocks\": [
+            {
+              \"type\": \"section\",
+              \"text\": {
+                \"type\": \"mrkdwn\",
+                \"text\": \"Workflow {{workflow.name}} {{workflow.status}}\",
+              }
+            }
+          ]
+        }'
+        YOUR_WEBHOOK_URL_HERE"
+      ]
+```
