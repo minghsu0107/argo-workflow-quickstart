@@ -49,7 +49,7 @@ Open port-forward to access the UI:
 kubectl -n argo port-forward deployment/argo-server 2746:2746
 ```
 ### Default Workflow Configuration
-For the following workflow:
+For the following workflow setting:
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
@@ -64,7 +64,7 @@ spec:
     secondsAfterSuccess: 5  # Time to live after workflow is successful
   parallelism: 3
 ```
-In `workflow-controller-configmap`:
+You can set it as the default value in `workflow-controller-configmap`:
 ```yaml
 # This file describes the config settings available in the workflow controller configmap
 apiVersion: v1
