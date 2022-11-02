@@ -516,7 +516,7 @@ spec:
       image: python
       command: ["python", "-c"]
       # fail with a 80% probability
-      args: ["import random; import sys; exit_code = random.choice(range(0, 5)); sys.exit(exit_code)"]
+      args: ["import random; import sys; print('retries: {{retries}}'); exit_code = random.choice(range(0, 5)); sys.exit(exit_code)"]
 ```
 ### Synchronization
 - https://argoproj.github.io/argo-workflows/synchronization/
