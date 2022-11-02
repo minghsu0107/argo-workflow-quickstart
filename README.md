@@ -779,6 +779,59 @@ spec:
       command: [sh, -c]
       args: ["echo sleeping for {{inputs.parameters.seconds}} seconds; sleep {{inputs.parameters.seconds}}; echo done"]
 ```
+### Function and Variables
+Cast to string:
+```yaml=
+"{{=string(1)}}"
+```
+Extract data from JSON:
+```yaml=
+"{{=jsonpath(inputs.parameters.json, '$.some.path')}}"
+```
+Filter a list and turn into Json string:
+```yaml=
+"{{=toJson(filter([1, 3], {# > 1}))}}"
+```
+Map a list:
+```yaml=
+"{{=map([1, 2], { # * 2 })}}"
+```
+Integer calculation for increasing memory limit on retry:
+```yaml=
+retryStrategy:
+  limit: "{{inputs.parameters.retry_limit}}"
+  retryPolicy: Always
+  backoff:
+    duration: 1m
+    factor: '2'
+podSpecPatch: |
+  containers:
+    - name: main
+      resources:
+        limits:
+          memory: {{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi
+        requests:
+          cpu: {{inputs.parameters.required_cpu}}
+          memory: {{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi
+```
+If you are using helm chart, use the following syntax to escape from helm template:
+```yaml=
+retryStrategy:
+  limit: {{ `{{inputs.parameters.retry_limit}}` }}
+  retryPolicy: Always
+  backoff:
+    duration: 1m
+    factor: '2'
+podSpecPatch: |
+  containers:
+    - name: main
+      resources:
+        limits:
+          memory: {{ `{{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi` }}
+        requests:
+          cpu: {{ `{{inputs.parameters.required_cpu}}` }}
+          memory: {{ `{{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi` }}
+```
 ### Parallelism
 
 Parallelism limits the max total parallel pods that can execute at the same time in a workflow.
