@@ -804,15 +804,7 @@ retryStrategy:
   backoff:
     duration: 1m
     factor: '2'
-podSpecPatch: |
-  containers:
-    - name: main
-      resources:
-        limits:
-          memory: {{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi
-        requests:
-          cpu: {{inputs.parameters.required_cpu}}
-          memory: {{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi
+podSpecPatch: '{"containers":[{"name":"main","resources":{"limits":{"memory":"{{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi"},"requests":{"cpu":"{{inputs.parameters.required_cpu}}","memory":"{{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi"}}}]}'
 ```
 If you are using helm chart, use the following syntax to escape from helm template:
 ```yaml=
@@ -822,15 +814,7 @@ retryStrategy:
   backoff:
     duration: 1m
     factor: '2'
-podSpecPatch: |
-  containers:
-    - name: main
-      resources:
-        limits:
-          memory: {{ `{{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi` }}
-        requests:
-          cpu: {{ `{{inputs.parameters.required_cpu}}` }}
-          memory: {{ `{{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi` }}
+podSpecPatch: '{"containers":[{"name":"main","resources":{"limits":{"memory":"{{ `{{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi` }}"},"requests":{"cpu":"{{ `{{inputs.parameters.required_cpu}}` }}","memory":"{{ `{{=(sprig.int(retries) + 1) * asInt(inputs.parameters.required_mem)}}Mi` }}"}}}]}'
 ```
 ### Parallelism
 
