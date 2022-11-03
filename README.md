@@ -816,6 +816,17 @@ retryStrategy:
     factor: '2'
 podSpecPatch: '{"containers":[{"name":"main","resources":{"limits":{"memory":"{{ `{{=(sprig.int(retries) + 1) * 64}}Mi` }}"},"requests":{"cpu":"{{ `{{inputs.parameters.required_cpu}}` }}","memory":"{{ `{{=(sprig.int(retries) + 1) * 64}}Mi` }}"}}}]}'
 ```
+Or:
+```yaml=
+retryStrategy:
+  limit: '{{ `{{inputs.parameters.retry_limit}}` }}'
+  retryPolicy: Always
+  backoff:
+    duration: 1m
+    factor: '2'
+{{- $reqMem := printf "{{=(sprig.int(retries) + 1) * %v}}Mi" .Values.crawler.resources.requests.memory }}
+podSpecPatch: '{"containers":[{"name":"main","resources":{"limits":{"memory":"{{  $reqMem  }}"},"requests":{"cpu":"{{ `{{inputs.parameters.required_cpu}}` }}","memory":"{{ $reqMem }}"}}}]}'
+```
 ### Parallelism
 
 Parallelism limits the max total parallel pods that can execute at the same time in a workflow.
