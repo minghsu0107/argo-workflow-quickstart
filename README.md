@@ -786,7 +786,7 @@ Cast to string:
 ```
 Extract data from JSON:
 ```yaml=
-"{{=jsonpath(inputs.parameters.json, '$.some.path')}}"
+"{{=jsonpath(inputs.parameters.myjson, '$.some.path')}}"
 ```
 Filter a list and turn into Json string:
 ```yaml=
