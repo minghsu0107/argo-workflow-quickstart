@@ -598,7 +598,7 @@ spec:
       image: debian:latest
       command: ["/bin/bash", "-c"]
       args: ["
-        vol_found=`mount | grep /mnt/vol` && \
+        vol_found=`mount | grep /mnt/vol`;
         if [[ -n $vol_found ]]; then echo \"Volume mounted and found\"; else echo \"Not found\"; fi
       "]
       volumeMounts:
