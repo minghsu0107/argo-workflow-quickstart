@@ -649,7 +649,7 @@ spec:
     container:
       image: alpine:3.14
       command: [sh, -c]
-      args: ["ls directory from volume; find /mnt/vol; ls /mnt/vol/"]
+      args: ["echo ls directory from volume; find /mnt/vol; ls /mnt/vol/"]
       volumeMounts:
       - name: workdir
         mountPath: /mnt/vol
