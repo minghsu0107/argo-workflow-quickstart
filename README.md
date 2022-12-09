@@ -580,6 +580,31 @@ spec:
       args: ["sleep 10; echo acquired lock"]
 ```
 Two instances of templates will be executed at a given time: even multiple steps/tasks within workflow or different workflows referring to the same template.
+### EmptyDir
+```yaml=
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: volumes-emptydir-
+spec:
+  entrypoint: volumes-emptydir-example
+  volumes:
+  - name: workdir
+    emptyDir: {}
+
+  templates:
+  - name: volumes-emptydir-example
+    container:
+      image: debian:latest
+      command: ["/bin/bash", "-c"]
+      args: ["
+        vol_found=`mount | grep /mnt/vol` && \
+        if [[ -n $vol_found ]]; then echo \"Volume mounted and found\"; else echo \"Not found\"; fi
+      "]
+      volumeMounts:
+      - name: workdir
+        mountPath: /mnt/vol
+```
 ### Git Clone With SSH + Vault + Volume
 Remember to upload your ssh public key to Github in advance.
 
