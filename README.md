@@ -253,7 +253,7 @@ spec:
       command: [echo, "{{inputs.parameters.message}}"]
 ```
 ### Artifacts and Parameters
-Different types of inputs + passing artifacts and parameters:
+Different types of inputs + passing artifacts and parameters + argument from command line:
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
@@ -324,7 +324,7 @@ Create workflow:
 ```bash
 argo submit --serviceaccount argoadmin -n argo example.yaml -p 'workflow-param-1="abcd"'
 ```
-Argument from command line:
+Another example:
 ```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
