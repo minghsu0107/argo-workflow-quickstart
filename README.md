@@ -581,7 +581,7 @@ spec:
 ```
 Two instances of templates will be executed at a given time: even multiple steps/tasks within workflow or different workflows referring to the same template.
 ### EmptyDir
-```yaml=
+```yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
@@ -664,7 +664,7 @@ spec:
       args:
         - apt-get update && apt-get install -y git;
           mkdir /root/.ssh/ &&touch /root/.ssh/id_rsa && touch /root/.ssh/known_hosts;
-          cat /vault/secrets/myconfig > /root/.ssh/id_rsa && chmod 700 /root/.ssh/id_rsa;
+          cat /vault/secrets/myconfig > /root/.ssh/id_rsa && chmod 600 /root/.ssh/id_rsa;
           ssh-keyscan github.com >> /root/.ssh/known_hosts;
           git clone git@github.com:minghsu0107/saga-example.git /mnt/vol;
       volumeMounts:
